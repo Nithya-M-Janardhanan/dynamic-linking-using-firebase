@@ -1,0 +1,9 @@
+const String initialRoute = '/';
+const String homeScreenRoute = '/home';
+const String loginScreenRoute = '/login';
+const String sensorScreenRoute = '/sensor';
+const String mainScreenRoute = '/mainscreen';
+const String accountScreenRoute = '/accountScreen';
+const String productDetailScreenRoute = '/productDetailScreen';
+const String notificationDataScreenRoute = '/notificationDataScreen';
+const String cartScreenRoute = '/cartScreen';
