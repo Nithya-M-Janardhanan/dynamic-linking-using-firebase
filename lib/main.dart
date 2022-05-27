@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_model/homeScreen.dart';
 import 'package:firebase_model/product_provider.dart';
+import 'package:firebase_model/step_count/step_count.dart';
 import 'package:firebase_model/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: HomeScreen(),
+        home: StepCountSample(),
         debugShowCheckedModeBanner: false,
       ),
     );
