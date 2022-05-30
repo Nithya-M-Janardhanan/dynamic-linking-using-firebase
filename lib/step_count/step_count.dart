@@ -21,12 +21,16 @@ class _StepCountSampleState extends State<StepCountSample> {
   int? stepsTaken = 0;
   bool flag = false;
   StreamSubscription<StepCount>? subscription;
+  double? distance;
+  int? stepInt;
 
   void onStepCount(StepCount event){
     setState(() {
       if(stepsTaken != null){
         steps = (event.steps - stepsTaken!).toString();
-        debugPrint('steps..........$steps');
+        stepInt = event.steps - stepsTaken!;
+        distance = (stepInt! * 0.762);
+        debugPrint('steps..........$distance');
       }
     });
     // Fluttertoast.showToast(msg: steps??'///');
@@ -105,6 +109,10 @@ class _StepCountSampleState extends State<StepCountSample> {
             Icon(status == 'walking' ? Icons.directions_walk : status == 'stopped' ? Icons.accessibility_new : Icons.error),
             Center(
               child: Text(status ?? ''),
+            ),
+            Center(child: Text('Distance'),),
+            Center(
+              child: Text(distance.toString()),
             )
             
           ],

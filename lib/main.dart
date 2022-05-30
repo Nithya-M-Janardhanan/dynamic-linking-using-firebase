@@ -6,6 +6,8 @@ import 'package:firebase_model/test_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'animation/color_tween.dart';
+import 'animation/tween_animation.dart';
 import 'cart_provider.dart';
 import 'fav_provider.dart';
 
