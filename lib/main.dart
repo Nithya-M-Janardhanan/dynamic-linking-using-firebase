@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: StepCountSample(),
+        home: ColorTweenEx(),
         debugShowCheckedModeBanner: false,
       ),
     );

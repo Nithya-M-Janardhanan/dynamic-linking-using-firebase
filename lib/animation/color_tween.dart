@@ -42,7 +42,7 @@ class _ColorTweenExState extends State<ColorTweenEx>with TickerProviderStateMixi
       }
     });
 
-    sizeAnimation = SizeTween(begin: Size(100,200),end: Size(200,400)).animate(controller)..addListener(() { })..addStatusListener((status) {
+    sizeAnimation = SizeTween(begin: Size(100,200),end: Size(200,300)).animate(controller)..addListener(() { })..addStatusListener((status) {
       if(status == AnimationStatus.completed){
         controller.reverse();
 
@@ -70,16 +70,23 @@ class _ColorTweenExState extends State<ColorTweenEx>with TickerProviderStateMixi
           animation: controller,
           builder: (BuildContext context, Widget? child) {
             return
-              /*ClipRRect(
-              borderRadius: borderRadiusAnimation.value,
-              child: Container(
-              height: sizeAnimation.value?.height,
-              width: sizeAnimation.value?.width,
-                decoration: BoxDecoration(
-                    color: colorAnimation.value,
-                ),
-          ),);*/
-            Center(child: Text('Tween Animation',style: textStyleAnimation.value));
+              Stack(
+                children: [
+                  Center(
+                    child: ClipRRect(
+                    borderRadius: borderRadiusAnimation.value,
+                    child: Container(
+                    height: sizeAnimation.value?.height,
+                    width: sizeAnimation.value?.width,
+                      decoration: BoxDecoration(
+                          color: colorAnimation.value,
+                      ),
+          ),),
+                  ),
+                  Center(child: Text('Tween Animation',style: textStyleAnimation.value))
+                ],
+              );
+
             },
         ),
       ),
