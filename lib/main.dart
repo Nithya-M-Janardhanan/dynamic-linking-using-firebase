@@ -1,19 +1,33 @@
+import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_model/homeScreen.dart';
 import 'package:firebase_model/product_provider.dart';
+import 'package:firebase_model/sample_form.dart';
+import 'package:firebase_model/sliver_appbar.dart';
 import 'package:firebase_model/step_count/step_count.dart';
 import 'package:firebase_model/test_screen.dart';
+import 'package:firebase_model/timer.dart';
+import 'package:firebase_model/ui_sample.dart';
+import 'package:firebase_model/video.dart';
+import 'package:firebase_model/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'animation/color_tween.dart';
 import 'animation/tween_animation.dart';
 import 'cart_provider.dart';
 import 'fav_provider.dart';
+import 'package:path_provider/path_provider.dart' as pathProvider;
+
+import 'limo_ui.dart';
+// import 'package:hive/hive.dart';
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Directory directory = await pathProvider.getApplicationDocumentsDirectory();
+  // Hive.init(directory.path);
+  // Hive.registerAdapter(EmployeeAdapter());
   runApp(const MyApp());
 }
 
@@ -43,7 +57,7 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: ColorTweenEx(),
+        home: TestScreen(),
         debugShowCheckedModeBanner: false,
       ),
     );
