@@ -47,7 +47,7 @@ dependencies:
   fluttertoast: ^8.0.9
   pedometer: ^3.0.0
   video_player: ^2.4.2
-  #vimeoplayer: ^0.1.8
+  camera: ^0.9.8
 
 dev_dependencies:
   flutter_test:

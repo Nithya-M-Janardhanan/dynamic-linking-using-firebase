@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_model/gallery_screen.dart';
 import 'package:firebase_model/homeScreen.dart';
 import 'package:firebase_model/product_provider.dart';
 import 'package:firebase_model/sample_form page_keyboard_appear_issue.dart';
@@ -11,6 +13,7 @@ import 'package:firebase_model/ui_sample.dart';
 import 'package:firebase_model/video.dart';
 import 'package:firebase_model/video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'animation/color_tween.dart';
 import 'animation/tween_animation.dart';
@@ -19,13 +22,14 @@ import 'fav_provider.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
 
 import 'limo_ui.dart';
+
 // import 'package:hive/hive.dart';
-
-
-void main() async{
+List<CameraDescription>? _cameras;
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   Directory directory = await pathProvider.getApplicationDocumentsDirectory();
+  _cameras = await availableCameras();
   // Hive.init(directory.path);
   // Hive.registerAdapter(EmployeeAdapter());
   runApp(const MyApp());
@@ -57,7 +61,7 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        home: TestScreen(),
+        home: CameraScreen(),
         debugShowCheckedModeBanner: false,
       ),
     );
@@ -146,5 +150,205 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+/*class CameraApp extends StatefulWidget {
+  const CameraApp({Key? key}) : super(key: key);
+
+  @override
+  State<CameraApp> createState() => _CameraAppState();
+}
+
+class _CameraAppState extends State<CameraApp> {
+   CameraController? controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = CameraController(_cameras![0], ResolutionPreset.max);
+    controller?.initialize().then((value){
+      if(!mounted){
+        return;
+      }
+      setState(() {
+
+      });
+    }).catchError((Object e){
+      if(e is CameraException){
+        switch(e.code){
+          case 'CameraAccessDenied' :
+            print('User denied camera access.');
+            break;
+          default :
+            print('Handle other errors.');
+            break;
+        }
+      }
+    });
+  }
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    if(!controller!.value.isInitialized){
+      return Container();
+    }
+    return CameraPreview(controller!);
+  }
+}*/
+class CameraScreen extends StatefulWidget {
+  const CameraScreen({Key? key}) : super(key: key);
+
+  @override
+  State<CameraScreen> createState() => _CameraScreenState();
+}
+
+class _CameraScreenState extends State<CameraScreen> {
+  CameraController? controller;
+  bool isCameraInitialized = false;
+  List<File> capturedImages = [];
+  File? imageFile;
+
+  void onNewCameraSelected(CameraDescription cameraDescription) async {
+    final previousCameraController = controller;
+    final CameraController cameraController = CameraController(
+        cameraDescription, ResolutionPreset.high,
+        imageFormatGroup: ImageFormatGroup.jpeg);
+    await previousCameraController?.dispose();
+    if (mounted) {
+      setState(() {
+        controller = cameraController;
+      });
+    }
+    cameraController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    try {
+      await cameraController.initialize();
+    } on CameraException catch (e) {
+      print('Error initializing camera: $e');
+    }
+    if (mounted) {
+      setState(() {
+        isCameraInitialized = controller!.value.isInitialized;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    onNewCameraSelected(_cameras![0]);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? cameraController = controller;
+    if (cameraController == null && !cameraController!.value.isInitialized) {
+      return;
+    }
+    if (state == AppLifecycleState.inactive) {
+      cameraController.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      onNewCameraSelected(cameraController.description);
+    }
+  }
+  Future<XFile?> takePicture() async {
+    final CameraController? cameraController = controller;
+    if (cameraController!.value.isTakingPicture) {
+      return null;
+    }
+    try {
+      XFile file = await cameraController.takePicture();
+      return file;
+    } on CameraException catch (e) {
+      print('Error occured while taking picture: $e');
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: isCameraInitialized
+            ?
+        // Row(
+        //       children: [
+                Stack(
+                  children: [
+                    controller!.buildPreview(),
+                    Center(
+                      child: Container(
+                        alignment: Alignment.bottomCenter,
+                        child: InkWell(
+                          onTap: ()async{
+                            XFile? rawImage = await takePicture();
+                            setState(() {
+                              capturedImages.add(File(rawImage!.path));
+                            });
+                            imageFile = File(rawImage!.path);
+
+                            int currentUnix = DateTime.now().millisecondsSinceEpoch;
+                            final directory = await getApplicationDocumentsDirectory();
+                            String fileFormat = imageFile!.path.split('.').last;
+
+                            await imageFile!.copy(
+                              '${directory.path}/$currentUnix.$fileFormat',
+                            );
+                          },
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: const [
+                              Icon(Icons.circle,color: Colors.white38,size: 80,),
+                              Icon(Icons.circle,color: Colors.white,size: 65,),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+        Center(
+          child: GestureDetector(
+            onTap: (){
+              if(capturedImages.isEmpty){
+                return;
+              }else{
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>GalleryScreen(images: capturedImages.reversed.toList())));
+              }
+            },
+            child: Container(
+              alignment: Alignment.bottomCenter,
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(color: Colors.black,borderRadius: BorderRadius.circular(10.0),border: Border.all(color: Colors.white,width: 2),
+                        image: imageFile != null ? DecorationImage(image: FileImage(imageFile!),fit: BoxFit.cover) : null,
+                    ),
+                    child: Container(),
+                  ),
+          ),
+        )
+                  ],
+                )
+            //     Container(
+            //       width: 30,
+            //       decoration: BoxDecoration(color: Colors.black,borderRadius: BorderRadius.circular(10.0),border: Border.all(color: Colors.white,width: 2),
+            //           image: imageFile != null ? DecorationImage(image: FileImage(imageFile!),fit: BoxFit.cover) : null,
+            //       ),
+            //       child: Container(),
+            //     )
+            //   ],
+            // )
+            : const SizedBox());
   }
 }
